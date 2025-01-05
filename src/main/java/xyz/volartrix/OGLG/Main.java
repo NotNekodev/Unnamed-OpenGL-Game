@@ -6,6 +6,7 @@ import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GLCapabilities;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import xyz.volartrix.OGLG.audio.OggPlayer;
 import xyz.volartrix.OGLG.components.Text;
 import xyz.volartrix.OGLG.ui.TextRenderer;
 import xyz.volartrix.OGLG.util.CrashHandler;
@@ -13,6 +14,7 @@ import xyz.volartrix.OGLG.window.KeyboardHandler;
 import xyz.volartrix.OGLG.window.Window;
 import xyz.volartrix.OGLG.window.WindowInfo;
 
+import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.lang.management.RuntimeMXBean;
 import java.util.HashMap;
@@ -20,6 +22,7 @@ import java.util.List;
 import java.util.Objects;
 
 import static org.lwjgl.glfw.GLFW.*;
+import static org.lwjgl.openal.AL10.*;
 import static org.lwjgl.opengl.GL11.*;
 
 public class Main {
@@ -94,6 +97,32 @@ public class Main {
         int fps = 0;
 
         glClearColor(0, 0, 0, 1.0f);
+
+        Thread audioThread = new Thread(() -> {
+            OggPlayer player = new OggPlayer();
+            player.init();
+
+            try {
+                player.loadOgg("assets/audio/battle.ogg");
+            } catch (IOException e) {
+                LOGGER.error("Failed to load OGG audio resource: assets/audio/battle.ogg", e);
+            }
+
+            player.play();
+
+            // Wait for the sound to finish
+            while (alGetSourcei(player.source, AL_SOURCE_STATE) == AL_PLAYING) {
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException ignored) {
+                }
+            }
+
+            player.cleanup();
+        });
+
+        audioThread.setDaemon(true);
+        audioThread.start();
 
         while (!glfwWindowShouldClose(WINDOW.getHandle())) {
             frameCount++;

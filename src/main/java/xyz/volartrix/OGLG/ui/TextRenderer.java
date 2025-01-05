@@ -6,7 +6,6 @@ import org.joml.Vector4f;
 import org.lwjgl.system.MemoryStack;
 import xyz.volartrix.OGLG.Main;
 import xyz.volartrix.OGLG.components.Text;
-import xyz.volartrix.OGLG.window.Window;
 
 import java.nio.IntBuffer;
 
@@ -17,7 +16,6 @@ public class TextRenderer {
 
 
     private final io.github.chiraagchakravarthy.lwjgl_vectorized_text.TextRenderer intRenderer;
-    private Window window;
 
     private static Vector4f argbToVector4f(int argbColor) {
         float a = ((argbColor >> 24) & 0xFF) / 255.0f; // Alpha component
